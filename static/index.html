@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RaahSaathi AI</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 520px; margin: 0 auto; padding: 24px; background: #f4f1e8; color: #2b3a2b; }
+  h1 { margin-bottom: 4px; }
+  .sub { color: #6b7a6b; margin-top: 0; }
+  .row { margin: 16px 0; }
+  button { font-family: inherit; font-size: 16px; padding: 10px 16px; margin: 4px 4px 4px 0; border: 2px solid #4a6b4a; background: #fff; border-radius: 8px; cursor: pointer; }
+  button.on { background: #4a6b4a; color: #fff; }
+  button.go { background: #2b3a2b; color: #fff; border-color: #2b3a2b; }
+  .mission { background: #fff; border-left: 5px solid #4a6b4a; padding: 12px; margin: 10px 0; border-radius: 6px; cursor: pointer; }
+  #status { color: #6b7a6b; font-style: italic; }
+</style>
+</head>
+<body>
+  <h1>RaahSaathi AI</h1>
+  <p class="sub">Phone neeche. Bahar jao.</p>
+
+  <div class="row"><b>Mode</b><br>
+    <button class="mode on" data-v="walk">Walk</button>
+    <button class="mode" data-v="nature">Nature</button>
+    <button class="mode" data-v="garden">Garden</button>
+  </div>
+
+  <div class="row"><b>Time (minutes)</b><br>
+    <button class="time" data-v="5">5</button>
+    <button class="time on" data-v="10">10</button>
+    <button class="time" data-v="20">20</button>
+  </div>
+
+  <button class="go" id="go">Get missions</button>
+  <p id="status"></p>
+  <div id="missions"></div>
+
+<script>
+  let mode = "walk", minutes = 10;
+
+  function pick(cls, setter) {
+    document.querySelectorAll("." + cls).forEach(b => {
+      b.onclick = () => {
+        document.querySelectorAll("." + cls).forEach(x => x.classList.remove("on"));
+        b.classList.add("on");
+        setter(b.dataset.v);
+      };
+    });
+  }
+  pick("mode", v => mode = v);
+  pick("time", v => minutes = parseInt(v));
+
+  document.getElementById("go").onclick = async () => {
+    const status = document.getElementById("status");
+    const box = document.getElementById("missions");
+    status.textContent = "Thinking...";
+    box.innerHTML = "";
+    try {
+      const r = await fetch("/api/missions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode, minutes })
+      });
+      const data = await r.json();
+      status.textContent = data.source === "model" ? "Made by local Gemma" : "Offline fallback missions";
+      data.missions.forEach(m => {
+        const d = document.createElement("div");
+        d.className = "mission";
+        d.textContent = m;
+        box.appendChild(d);
+      });
+    } catch (e) {
+      status.textContent = "Server not reachable.";
+    }
+  };
+</script>
+</body>
+</html>
