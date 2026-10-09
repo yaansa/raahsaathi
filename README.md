@@ -2,7 +2,9 @@
 
 
 
-Offline outdoor companion. A local open-weight model (Gemma via Ollama) gives small real-world missions for walks, nature and gardens, then turns your observations into a field note. Nothing leaves your device.
+\*\*Live demo (fallback mode):\*\* https://raahsaathi-1.onrender.com
+
+The hosted version uses predefined missions because the local Gemma model can't run on a free server. Run it locally with Ollama for the full AI experience.
 
 
 
